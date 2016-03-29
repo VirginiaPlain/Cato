@@ -36,17 +36,24 @@ namespace Cato.Shared.CatoServices
         }
 
 
-        public async Task<string> AddPersonFaceAsync(string personId, Stream imageStream)
+        public async Task<string> AddPersonFaceAsync(string personId, Stream imageStream, string contentType)
         {
+            var image = new PersonImage()
+            {
+                ImageId  = Guid.NewGuid().ToString()
+            };
+            _personStore.SavePersonImage(image.ImageId, imageStream, contentType);
 
-            var r = await _faceApi.AddPersonFaceAsync(PERSON_GROUP_ID, "a",, null, null);
-
+            //var r = await _faceApi.AddPersonFaceAsync(PERSON_GROUP_ID, "a",, null, null);
+            await Task.Delay(1);
             return string.Empty;
         }
 
-        public async Task<FaceDetectionResult> DetectFacesAsync(string imageUrl)
+        public async Task<FaceDetectionResult> DetectFacesAsync(Stream imageStream)
         {
             var rtn = new FaceDetectionResult();
+
+            string imageUrl="a";
             var r = await _faceApi.DetectAsync(imageUrl);
             foreach(Microsoft.ProjectOxford.Face.Contract.Face f in r)
             {
@@ -69,7 +76,7 @@ namespace Cato.Shared.CatoServices
     public interface IPeopleService
     {
         Task<Person> AddPersonAsync(Person p);
-        Task<string> AddPersonFaceAsync(string personId, Stream imageStream);
+        Task<string> AddPersonFaceAsync(string personId, Stream imageStream, string contentType);
         //void DeletePersonFace(string personId, string faceId);
 
         // todo

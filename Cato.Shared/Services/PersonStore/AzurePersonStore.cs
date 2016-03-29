@@ -36,12 +36,11 @@ namespace Cato.Shared.Services.PersonStore
 
         public void SavePersonImage(string imageId, Stream imageStream, string contentType)
         {
-            throw new NotImplementedException();
             CloudBlobClient blobClient = _storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(AZURE_BLOB_NAME);
-            CloudBlockBlob blockBlob = container.GetBlockBlobReference(name);
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(imageId);
             blockBlob.Properties.ContentType = contentType;
-            blockBlob.UploadFromStream(blobStream);
+            blockBlob.UploadFromStream(imageStream);
         }
 
         private PersonTableEntity Map(Person person)

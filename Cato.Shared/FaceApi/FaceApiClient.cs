@@ -23,7 +23,7 @@ namespace Cato.Shared.FaceApi
             Guid personGuid = Guid.Parse(personId);
             Guid faceGuid = Guid.Parse(faceId);
             //Task.Run(() => _faceServiceClient.AddPersonFaceAsync(PersonGroupId, personGuid, faceGuid));
-            await _faceServiceClient.AddPersonFaceAsync(PersonGroupId, personGuid, faceGuid);
+            await _faceServiceClient.AddPersonFaceAsync(PersonGroupId, personGuid, string.Empty);
 
         }
 
