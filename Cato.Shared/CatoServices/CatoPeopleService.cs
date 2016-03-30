@@ -1,20 +1,22 @@
-﻿using Cato.Shared.FaceApi;
+﻿
+
+using Cato.Shared.FaceApi;
 using Cato.Shared.Models;
 using Cato.Shared.Services.PersonStore;
-using Cato.Shared.Services.TableStorage.TableEntities;
 using Microsoft.ProjectOxford.Face;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.ProjectOxford.Face.Contract;
+using Newtonsoft.Json;
+using Person = Cato.Shared.Models.Person;
 
 namespace Cato.Shared.CatoServices
 {
     public class CatoPeopleService : IPeopleService
     {
-        private FaceServiceClient _faceApi;
+        private readonly FaceServiceClient _faceApi;
         private readonly IPersonStore _personStore;
         private const string PERSON_GROUP_ID = "alexone";
 
@@ -35,26 +37,58 @@ namespace Cato.Shared.CatoServices
             return person;
         }
 
-
-        public async Task<string> AddPersonFaceAsync(string personId, Stream imageStream, string contentType)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="personId"></param>
+        /// <param name="imageStream"></param>
+        /// <param name="contentType"></param>
+        /// <returns></returns>
+        public async Task<PersonImage> AddPersonFaceAsync(string personId, Stream imageStream, string contentType)
         {
+            
+            var person = _personStore.GetPerson(personId);
             var image = new PersonImage()
             {
+                PersonId = personId,
                 ImageId  = Guid.NewGuid().ToString()
             };
             _personStore.SavePersonImage(image.ImageId, imageStream, contentType);
 
-            //var r = await _faceApi.AddPersonFaceAsync(PERSON_GROUP_ID, "a",, null, null);
-            await Task.Delay(1);
-            return string.Empty;
+            imageStream.Position = 0;
+            var fdr = await DetectFacesAsync(imageStream);
+
+            if (fdr.FaceCount == 0)
+            {
+                throw new Exception("No faces detected in image");
+            }
+
+            // If more than one face use the first (MS Api returns largest face first)
+            var activeFace = fdr.Faces.First();
+            
+            imageStream.Position = 0;
+            var fr = new FaceRectangle()
+            {
+                Height = activeFace.Height,
+                Left = activeFace.Left,
+                Top = activeFace.Top,
+                Width = activeFace.Width
+            };
+            var r = await _faceApi.AddPersonFaceAsync(PERSON_GROUP_ID, Guid.Parse(person.FaceApiPersonId), imageStream, null, fr);
+
+            image.FaceDetection = JsonConvert.SerializeObject(activeFace);
+            image.FaceApiFaceId = r.PersistedFaceId.ToString();
+            _personStore.SavePersonImageData(image);
+            
+            return image;
         }
+
 
         public async Task<FaceDetectionResult> DetectFacesAsync(Stream imageStream)
         {
             var rtn = new FaceDetectionResult();
 
-            string imageUrl="a";
-            var r = await _faceApi.DetectAsync(imageUrl);
+            var r = await _faceApi.DetectAsync(imageStream);
             foreach(Microsoft.ProjectOxford.Face.Contract.Face f in r)
             {
                 var d = new FaceDetection()
@@ -76,7 +110,7 @@ namespace Cato.Shared.CatoServices
     public interface IPeopleService
     {
         Task<Person> AddPersonAsync(Person p);
-        Task<string> AddPersonFaceAsync(string personId, Stream imageStream, string contentType);
+        Task<PersonImage> AddPersonFaceAsync(string personId, Stream imageStream, string contentType);
         //void DeletePersonFace(string personId, string faceId);
 
         // todo

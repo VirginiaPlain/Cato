@@ -15,7 +15,8 @@ namespace Cato.Shared.FaceApi
         public int Height { get; set; }
         //
         public string IdentifiedFaceId { get; set; }
-        public string IdentifiedFaceName { get; set; }
+        public string IdentifiedPersonId { get; set; }
+        public string IdentifiedPersonName { get; set; }
 
         public FaceDetection()
         {
@@ -25,7 +26,8 @@ namespace Cato.Shared.FaceApi
             Width = 0;
             Height = 0;
             IdentifiedFaceId = string.Empty;
-            IdentifiedFaceName = string.Empty;
+            IdentifiedPersonId = string.Empty;
+            IdentifiedPersonName = string.Empty;
         }
 
     }

@@ -6,6 +6,7 @@ using Cato.Shared.Services.TableStorage.TableEntities;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Newtonsoft.Json;
 
 namespace Cato.Shared.Services.PersonStore
 {
@@ -34,6 +35,22 @@ namespace Cato.Shared.Services.PersonStore
             table.Execute(insertOp2);
         }
 
+        public Person GetPerson(string personId)
+        {
+            CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+            CloudTable table = tableClient.GetTableReference(TableNames.PERSON_TABLE);
+            TableOperation retrieveOp = TableOperation.Retrieve<PersonTableEntity>("person", personId);
+            var res = table.Execute(retrieveOp);
+            var te = res.Result as PersonTableEntity;
+            return Map(te);
+        }
+
+        /// <summary>
+        /// Saves the image blob
+        /// </summary>
+        /// <param name="imageId"></param>
+        /// <param name="imageStream"></param>
+        /// <param name="contentType"></param>
         public void SavePersonImage(string imageId, Stream imageStream, string contentType)
         {
             CloudBlobClient blobClient = _storageAccount.CreateCloudBlobClient();
@@ -41,6 +58,18 @@ namespace Cato.Shared.Services.PersonStore
             CloudBlockBlob blockBlob = container.GetBlockBlobReference(imageId);
             blockBlob.Properties.ContentType = contentType;
             blockBlob.UploadFromStream(imageStream);
+        }
+
+        /// <summary>
+        /// Saves the image blob data to table storage
+        /// </summary>
+        public void SavePersonImageData(PersonImage personImage)
+        {
+            var entity = Map(personImage);
+            CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+            CloudTable table = tableClient.GetTableReference(TableNames.PERSON_TABLE);
+            TableOperation insertOp = TableOperation.Insert(entity);
+            table.Execute(insertOp);
         }
 
         private PersonTableEntity Map(Person person)
@@ -55,6 +84,32 @@ namespace Cato.Shared.Services.PersonStore
                 FaceApiPersonId = person.FaceApiPersonId
             };
             return pte;
+        }
+
+        private Person Map(PersonTableEntity pte)
+        {
+            var p = new Person()
+            {
+                PersonId = pte.PersonId,
+                Name = pte.Name,
+                FriendlyName = pte.FriendlyName,
+                FaceApiPersonId = pte.FaceApiPersonId
+            };
+            return p;
+        }
+
+        private PersonImageTableEntity Map(PersonImage personImage)
+        {
+            var e = new PersonImageTableEntity()
+            {
+                PartitionKey = personImage.PersonId,
+                RowKey = personImage.ImageId,
+                PersonId = personImage.PersonId,
+                ImageId = personImage.ImageId,
+                FaceDetection = personImage.FaceDetection,
+                FaceApiFaceId = personImage.FaceApiFaceId
+            };
+            return e;
         }
 
         private FaceApiPersonTableEntity MapLookup(Person person)
