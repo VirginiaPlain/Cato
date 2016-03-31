@@ -5,6 +5,7 @@ using Cato.Shared.Models;
 using Cato.Shared.Services.PersonStore;
 using Microsoft.ProjectOxford.Face;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,6 +37,13 @@ namespace Cato.Shared.CatoServices
 
             return person;
         }
+
+        public async Task<IEnumerable<Person>> GetPeopleAsync()
+        {
+            var t = await Task.Run<IEnumerable<Person>>(() => _personStore.GetPeople());
+            return t;
+        }
+
 
         /// <summary>
         /// 
@@ -116,7 +124,7 @@ namespace Cato.Shared.CatoServices
         // todo
         Task<FaceDetectionResult> DetectFacesAsync(Stream imageStream);
         //FaceIdentificationResult IdentifyFaces(FaceDetectionResult faces, double minThreshold);
-
+        Task<IEnumerable<Person>> GetPeopleAsync();
 
 
         // obs

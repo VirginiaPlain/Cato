@@ -1,4 +1,5 @@
-﻿using Cato.Shared.Models;
+﻿using System.Collections.Generic;
+using Cato.Shared.Models;
 using System.IO;
 
 namespace Cato.Shared.Services.PersonStore
@@ -9,6 +10,9 @@ namespace Cato.Shared.Services.PersonStore
         void SavePerson(Person person);
 
         Person GetPerson(string personId);
+
+        IEnumerable<Person> GetPeople();
+
         /// <summary>
         /// Saves the blob
         /// </summary>

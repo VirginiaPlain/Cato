@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Cato.Shared.Models;
 using Cato.Shared.Services.TableStorage;
@@ -44,6 +45,24 @@ namespace Cato.Shared.Services.PersonStore
             var te = res.Result as PersonTableEntity;
             return Map(te);
         }
+
+        public IEnumerable<Person> GetPeople()
+        {
+            CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+            CloudTable table = tableClient.GetTableReference(TableNames.PERSON_TABLE);
+            TableQuery<PersonTableEntity> query = new TableQuery<PersonTableEntity>()
+                                                        .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "person"));
+            var result = table.ExecuteQuery(query);
+
+            var list = new List<Person>();
+            foreach (PersonTableEntity e in result)
+            {
+                var p = Map(e);
+                list.Add(p);
+            }
+
+            return list;
+        } 
 
         /// <summary>
         /// Saves the image blob
