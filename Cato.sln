@@ -12,9 +12,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cato.Worker", "Cato.Worker\Cato.Worker.csproj", "{020170BD-D2EC-4C0E-A2AF-0CA26F10F4CE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FD00F484-73A2-40E9-979B-CF4AD30B1C5F}"
-	ProjectSection(SolutionItems) = preProject
-		Config.secret = Config.secret
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
