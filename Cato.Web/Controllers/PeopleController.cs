@@ -6,7 +6,7 @@ using Cato.Shared.CatoServices;
 using Cato.Shared.Services.PersonStore;
 using Cato.Web.Clients;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure;
 
 namespace Cato.Web.Controllers
 {
@@ -17,8 +17,9 @@ namespace Cato.Web.Controllers
 
         public PeopleController()
         {
-            StorageCredentials sc = new StorageCredentials();
-            CloudStorageAccount csa = new CloudStorageAccount(sc, true);
+            // move this to unity & constructor
+            string connStr = CloudConfigurationManager.GetSetting("AzureTable.ConnectionString");
+            CloudStorageAccount csa = CloudStorageAccount.Parse(connStr);
             IPeopleService svc = new CatoPeopleService("key", new AzurePersonStore(csa));
             _peopleClient = new PeopleClient(svc);
         }

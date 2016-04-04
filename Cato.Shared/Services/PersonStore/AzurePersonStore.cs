@@ -13,6 +13,7 @@ namespace Cato.Shared.Services.PersonStore
 {
     public class AzurePersonStore : IPersonStore
     {
+        
         private const string AZURE_BLOB_NAME = "personimages";
 
         private readonly CloudStorageAccount _storageAccount;
@@ -20,6 +21,7 @@ namespace Cato.Shared.Services.PersonStore
         public AzurePersonStore(CloudStorageAccount storageAcc)
         {
             _storageAccount = storageAcc;
+            Initialise();
         }
 
         public void SavePerson(Person person)
@@ -142,6 +144,16 @@ namespace Cato.Shared.Services.PersonStore
             };
             return e;
         }
+
+
+        private void Initialise()
+        {
+            CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+            CloudTable table = tableClient.GetTableReference(TableNames.PERSON_TABLE);
+
+            table.CreateIfNotExists();
+        }
+
 
     }
 
