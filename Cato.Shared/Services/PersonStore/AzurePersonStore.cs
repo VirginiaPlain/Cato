@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+
 using System.Collections.Generic;
 using System.IO;
 using Cato.Shared.Models;
@@ -7,7 +8,6 @@ using Cato.Shared.Services.TableStorage.TableEntities;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage.Blob;
-using Newtonsoft.Json;
 
 namespace Cato.Shared.Services.PersonStore
 {

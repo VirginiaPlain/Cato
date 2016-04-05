@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using Cato.Shared.CatoServices;
 using Cato.Shared.Services.PersonStore;
 using Cato.Web.Clients;
+using Cato.Web.Models;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure;
 
@@ -13,7 +14,7 @@ namespace Cato.Web.Controllers
     public class PeopleController : Controller
     {
 
-        private IPeopleClient _peopleClient;
+        private readonly IPeopleClient _peopleClient;
 
         public PeopleController()
         {
@@ -31,6 +32,13 @@ namespace Cato.Web.Controllers
             var data = await _peopleClient.GetPeopleAsync();
 
             return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Add(PersonViewModel pvm)
+        {
+            await Task.Delay(10);
+            return RedirectToAction("Index");
         }
     }
 }
