@@ -1,8 +1,11 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 
-namespace Cato.Shared.Models
+namespace Cato.Web.Models
 {
-    public class PersonImage
+    public class PersonImageViewModel
     {
         public string PersonId { get; set; }
         public string ImageId { get; set; }
@@ -10,7 +13,7 @@ namespace Cato.Shared.Models
         public string FaceDetection { get; set; }    //FaceDetection
         public string FaceApiFaceId { get; set; }
 
-        public PersonImage()
+        public PersonImageViewModel()
         {
             PersonId = string.Empty;
             ImageId = string.Empty;
@@ -18,5 +21,6 @@ namespace Cato.Shared.Models
             FaceDetection = string.Empty;
             FaceApiFaceId = string.Empty;
         }
+
     }
 }

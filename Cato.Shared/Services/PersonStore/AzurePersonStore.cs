@@ -64,7 +64,30 @@ namespace Cato.Shared.Services.PersonStore
             }
 
             return list;
-        } 
+        }
+
+        public IEnumerable<PersonImage> GetPersonImages(string personId)
+        {
+            CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
+            CloudTable table = tableClient.GetTableReference(TableNames.PERSON_TABLE);
+            TableQuery<PersonImageTableEntity> query = new TableQuery<PersonImageTableEntity>()
+                                                        .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, personId));
+            var result = table.ExecuteQuery(query);
+
+            var list = new List<PersonImage>();
+            foreach (PersonImageTableEntity e in result)
+            {
+                var p = new PersonImage()
+                {
+                    PersonId = e.PersonId,
+                    ImageId = e.ImageId,
+                    FaceDetection = e.FaceDetection,
+                    FaceApiFaceId = e.FaceApiFaceId
+                };
+                list.Add(p);
+            }
+            return list;
+        }
 
         /// <summary>
         /// Saves the image blob
@@ -150,6 +173,10 @@ namespace Cato.Shared.Services.PersonStore
         {
             CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
             CloudTable table = tableClient.GetTableReference(TableNames.PERSON_TABLE);
+
+            CloudBlobClient blobClient = _storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference(AZURE_BLOB_NAME);
+            container.CreateIfNotExists(BlobContainerPublicAccessType.Off);
 
             table.CreateIfNotExists();
         }

@@ -1,7 +1,7 @@
-﻿using System;
+﻿
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
 using Cato.Web.Models;
 
@@ -12,5 +12,10 @@ namespace Cato.Web.Clients
 
         Task<IEnumerable<PersonViewModel>> GetPeopleAsync();
 
+        Task<PersonViewModel> GetPersonAsync(string personId);
+        Task<PersonImagesViewModel> GetPersonImages(string personId);
+        Task<PersonViewModel> AddPersonAsync(PersonViewModel pvm);
+
+        Task<string> AddPersonImageAsync(string personId, Stream imageStream, string contentType);
     }
 }

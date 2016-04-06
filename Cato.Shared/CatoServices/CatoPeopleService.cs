@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Microsoft.ProjectOxford.Face.Contract;
 using Newtonsoft.Json;
@@ -21,10 +23,17 @@ namespace Cato.Shared.CatoServices
         private readonly IPersonStore _personStore;
         private const string PERSON_GROUP_ID = "alexone";
 
+        private static bool _apiIsInitialsed = false;
+
         public CatoPeopleService(string key, IPersonStore pStore)
         {
             _faceApi = new FaceServiceClient(key);
             _personStore = pStore;
+            if (!_apiIsInitialsed)
+            {
+                Task<bool> i = Task.Run(() => Initialise());
+                _apiIsInitialsed = i.Result;
+            }
         }
 
 
@@ -44,6 +53,20 @@ namespace Cato.Shared.CatoServices
             return t;
         }
 
+        public async Task<Person> GetPersonAsync(string personId)
+        {
+            var t = await Task.Run<Person>(() => _personStore.GetPerson(personId));
+            return t;
+        }
+
+        public async Task<IEnumerable<PersonImage>> GetPersonImagesAsync(string personId)
+        {
+            var t = await Task.Run<IEnumerable<PersonImage>>(() => _personStore.GetPersonImages(personId));
+
+            // todo Get Urls
+
+            return t;
+        }
 
         /// <summary>
         /// 
@@ -82,8 +105,8 @@ namespace Cato.Shared.CatoServices
                 Top = activeFace.Top,
                 Width = activeFace.Width
             };
-            var r = await _faceApi.AddPersonFaceAsync(PERSON_GROUP_ID, Guid.Parse(person.FaceApiPersonId), imageStream, null, fr);
-
+            //var r = await _faceApi.AddPersonFaceAsync(PERSON_GROUP_ID, Guid.Parse(person.FaceApiPersonId), imageStream, null, fr);
+            var r = await _faceApi.AddPersonFaceAsync(PERSON_GROUP_ID, Guid.Parse(person.FaceApiPersonId), imageStream);
             image.FaceDetection = JsonConvert.SerializeObject(activeFace);
             image.FaceApiFaceId = r.PersistedFaceId.ToString();
             _personStore.SavePersonImageData(image);
@@ -112,11 +135,32 @@ namespace Cato.Shared.CatoServices
             return rtn;
         }
 
+        public async Task<bool> Initialise()
+        {
+            bool personGroupExists = false;
+            var x = await _faceApi.GetPersonGroupsAsync();
+            foreach (PersonGroup pg in x)
+            {
+                if (pg.PersonGroupId.Equals(PERSON_GROUP_ID))
+                {
+                    personGroupExists = true;
+                }
+            }
+            if (!personGroupExists)
+            {
+                await _faceApi.CreatePersonGroupAsync(PERSON_GROUP_ID, "Cato people");
+            }
+            return true;
+        }
+
+        
+       
     }
 
 
     public interface IPeopleService
     {
+        Task<bool> Initialise();
         Task<Person> AddPersonAsync(Person p);
         Task<PersonImage> AddPersonFaceAsync(string personId, Stream imageStream, string contentType);
         //void DeletePersonFace(string personId, string faceId);
@@ -125,7 +169,9 @@ namespace Cato.Shared.CatoServices
         Task<FaceDetectionResult> DetectFacesAsync(Stream imageStream);
         //FaceIdentificationResult IdentifyFaces(FaceDetectionResult faces, double minThreshold);
         Task<IEnumerable<Person>> GetPeopleAsync();
+        Task<Person> GetPersonAsync(string personId);
 
+        Task<IEnumerable<PersonImage>> GetPersonImagesAsync(string personId);
 
         // obs
         //void CreatePersonGroup(string groupId, string name);

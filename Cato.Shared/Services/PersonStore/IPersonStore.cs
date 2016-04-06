@@ -13,6 +13,8 @@ namespace Cato.Shared.Services.PersonStore
 
         IEnumerable<Person> GetPeople();
 
+        IEnumerable<PersonImage> GetPersonImages(string personId);
+
         /// <summary>
         /// Saves the blob
         /// </summary>

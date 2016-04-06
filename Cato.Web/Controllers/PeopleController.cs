@@ -1,13 +1,12 @@
 ﻿
 
+using System;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
-using Cato.Shared.CatoServices;
-using Cato.Shared.Services.PersonStore;
 using Cato.Web.Clients;
 using Cato.Web.Models;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure;
+
 
 namespace Cato.Web.Controllers
 {
@@ -16,13 +15,9 @@ namespace Cato.Web.Controllers
 
         private readonly IPeopleClient _peopleClient;
 
-        public PeopleController()
+        public PeopleController(IPeopleClient client)
         {
-            // move this to unity & constructor
-            string connStr = CloudConfigurationManager.GetSetting("AzureTable.ConnectionString");
-            CloudStorageAccount csa = CloudStorageAccount.Parse(connStr);
-            IPeopleService svc = new CatoPeopleService("key", new AzurePersonStore(csa));
-            _peopleClient = new PeopleClient(svc);
+            _peopleClient = client;// new PeopleClient(svc);
         }
 
         // GET: People
@@ -31,14 +26,37 @@ namespace Cato.Web.Controllers
 
             var data = await _peopleClient.GetPeopleAsync();
 
-            return View();
+            return View(data);
+        }
+
+        public async Task<ActionResult> Person(string personId)
+        {
+
+            var x = await _peopleClient.GetPersonAsync(personId);
+
+            var m = new PersonImagesViewModel()
+            {
+                PersonId = x.PersonId,
+                Name = x.Name,
+                FriendlyName = x.FriendlyName
+            };
+
+            return View(m);
         }
 
         [HttpPost]
         public async Task<ActionResult> Add(PersonViewModel pvm)
         {
-            await Task.Delay(10);
+            await _peopleClient.AddPersonAsync(pvm);
             return RedirectToAction("Index");
+        }
+
+        public async Task<ActionResult> AddPersonImage(HttpPostedFileBase file, string personId)
+        {
+
+            await _peopleClient.AddPersonImageAsync(personId, file.InputStream, file.ContentType);
+
+            return RedirectToAction("Person", new {personId});
         }
     }
 }

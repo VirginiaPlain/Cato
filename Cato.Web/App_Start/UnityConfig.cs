@@ -1,6 +1,7 @@
 using System;
 using Cato.Shared.CatoServices;
 using Cato.Shared.Services.PersonStore;
+using Cato.Web.Clients;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Configuration;
 using Microsoft.WindowsAzure;
@@ -51,6 +52,7 @@ namespace Cato.Web.App_Start
 
             container.RegisterType<IPeopleService, CatoPeopleService>(new InjectionConstructor(apiKey,
                 new ResolvedParameter<IPersonStore>()));
+            container.RegisterType<IPeopleClient, PeopleClient>();
 
         }
     }
