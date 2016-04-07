@@ -1,11 +1,11 @@
 ﻿
 
-using System;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Cato.Web.Clients;
 using Cato.Web.Models;
+using Newtonsoft.Json;
 
 
 namespace Cato.Web.Controllers
@@ -31,17 +31,14 @@ namespace Cato.Web.Controllers
 
         public async Task<ActionResult> Person(string personId)
         {
-
+          var model = await _peopleClient.GetPersonImages(personId);
             var x = await _peopleClient.GetPersonAsync(personId);
 
-            var m = new PersonImagesViewModel()
-            {
-                PersonId = x.PersonId,
-                Name = x.Name,
-                FriendlyName = x.FriendlyName
-            };
+            model.PersonId = personId;
+            model.Name = x.Name;
+            model.FriendlyName = x.FriendlyName;
 
-            return View(m);
+            return View(model);
         }
 
         [HttpPost]
@@ -58,5 +55,13 @@ namespace Cato.Web.Controllers
 
             return RedirectToAction("Person", new {personId});
         }
+
+        public async Task<string> GetPersonDatabaseStatus()
+        {
+            var m = await _peopleClient.GetPersonDatabaseStatus();
+            string result = JsonConvert.SerializeObject(m);
+            return result;
+        }
+
     }
 }

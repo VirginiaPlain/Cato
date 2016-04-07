@@ -196,6 +196,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\PersonDatabaseStatusViewModel.cs" />
     <Compile Include="Models\PersonImagesViewModel.cs" />
     <Compile Include="Models\PersonImageViewModel.cs" />
     <Compile Include="Models\PersonViewModel.cs" />

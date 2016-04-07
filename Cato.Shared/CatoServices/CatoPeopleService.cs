@@ -105,11 +105,14 @@ namespace Cato.Shared.CatoServices
                 Top = activeFace.Top,
                 Width = activeFace.Width
             };
-            //var r = await _faceApi.AddPersonFaceAsync(PERSON_GROUP_ID, Guid.Parse(person.FaceApiPersonId), imageStream, null, fr);
-            var r = await _faceApi.AddPersonFaceAsync(PERSON_GROUP_ID, Guid.Parse(person.FaceApiPersonId), imageStream);
+
+            string imgUrl = _personStore.GetImageUrl(image.ImageId);
+            var r = await _faceApi.AddPersonFaceAsync(PERSON_GROUP_ID, Guid.Parse(person.FaceApiPersonId), imgUrl, null, fr);
             image.FaceDetection = JsonConvert.SerializeObject(activeFace);
             image.FaceApiFaceId = r.PersistedFaceId.ToString();
             _personStore.SavePersonImageData(image);
+
+            await Train();
             
             return image;
         }
@@ -135,6 +138,24 @@ namespace Cato.Shared.CatoServices
             return rtn;
         }
 
+        public async Task<bool> Train()
+        {
+            await _faceApi.TrainPersonGroupAsync(PERSON_GROUP_ID);
+            return true;
+        }
+
+        public async Task<FaceApiTrainingStatus> GetTrainingStatusAsync()
+        {
+            var status = await _faceApi.GetPersonGroupTrainingStatusAsync(PERSON_GROUP_ID);
+            var rtn = new FaceApiTrainingStatus()
+            {
+                Status = status.Status.ToString(),
+                LastAction = status.LastActionDateTime.ToString("D"),
+                Message = status.Message
+            };
+            return rtn;
+        }
+
         public async Task<bool> Initialise()
         {
             bool personGroupExists = false;
@@ -153,8 +174,6 @@ namespace Cato.Shared.CatoServices
             return true;
         }
 
-        
-       
     }
 
 
@@ -173,6 +192,8 @@ namespace Cato.Shared.CatoServices
 
         Task<IEnumerable<PersonImage>> GetPersonImagesAsync(string personId);
 
+        Task<bool> Train();
+        Task<FaceApiTrainingStatus> GetTrainingStatusAsync();
         // obs
         //void CreatePersonGroup(string groupId, string name);
         //bool PersonGroupExists(string groupId);

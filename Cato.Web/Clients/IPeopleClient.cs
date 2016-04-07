@@ -17,5 +17,7 @@ namespace Cato.Web.Clients
         Task<PersonViewModel> AddPersonAsync(PersonViewModel pvm);
 
         Task<string> AddPersonImageAsync(string personId, Stream imageStream, string contentType);
+
+        Task<PersonDatabaseStatusViewModel> GetPersonDatabaseStatus();
     }
 }

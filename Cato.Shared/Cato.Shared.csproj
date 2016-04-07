@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="CatoServices\CatoPeopleService.cs" />
     <Compile Include="FaceApi\FaceApiClient.cs" />
+    <Compile Include="FaceApi\FaceApiTrainingStatus.cs" />
     <Compile Include="FaceApi\FaceDetection.cs" />
     <Compile Include="FaceApi\FaceDetectionResult.cs" />
     <Compile Include="Models\Image.cs" />

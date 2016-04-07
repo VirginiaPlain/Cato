@@ -1,5 +1,6 @@
 ﻿
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Cato.Shared.Models;
@@ -82,11 +83,27 @@ namespace Cato.Shared.Services.PersonStore
                     PersonId = e.PersonId,
                     ImageId = e.ImageId,
                     FaceDetection = e.FaceDetection,
-                    FaceApiFaceId = e.FaceApiFaceId
+                    FaceApiFaceId = e.FaceApiFaceId,
+                    ImageUrl = GetImageUrl(e.ImageId)
                 };
                 list.Add(p);
             }
             return list;
+        }
+
+        public string GetImageUrl(string imageId)
+        {
+            var readPolicy = new SharedAccessBlobPolicy()
+            {
+                Permissions = SharedAccessBlobPermissions.Read,
+                SharedAccessExpiryTime = DateTime.UtcNow + TimeSpan.FromMinutes(10)
+            };
+            //CloudBlockBlob blockBlob = _azureStore.GetPersonImageBlobReference(img.ImageId);
+            CloudBlobClient blobClient = _storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference(AZURE_BLOB_NAME);
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(imageId);
+            string url = new Uri(blockBlob.Uri.AbsoluteUri + blockBlob.GetSharedAccessSignature(readPolicy)).ToString();
+            return url;
         }
 
         /// <summary>

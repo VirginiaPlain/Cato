@@ -16,6 +16,15 @@ Stuff goes here
 </div>
 
 
+<div>
+    @foreach (var img in Model.Images)
+    {
+        <div >
+            <img src=@img.ImageUrl class="person-images"/>
+        </div>
+    }
+</div>
+
 <div id="uploadFile" class="modal fade" role="dialog">
     <div class="modal-dialog">
 

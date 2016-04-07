@@ -104,6 +104,20 @@ namespace Cato.Web.Clients
             return x.ImageId;
         }
 
+
+        public async Task<PersonDatabaseStatusViewModel> GetPersonDatabaseStatus()
+        {
+            var x = await _peopleSvc.GetTrainingStatusAsync();
+            var result = new PersonDatabaseStatusViewModel()
+            {
+                Status = x.Status,
+                LastAction = x.LastAction,
+                Message = x.Message
+            };
+            return result;
+        }
+
+
     }
 
 
